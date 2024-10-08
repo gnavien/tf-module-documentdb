@@ -6,14 +6,51 @@ resource "aws_docdb_subnet_group" "main" {
 }
 
 
-#resource "aws_docdb_cluster" "docdb" {
-#  cluster_identifier      = "my-docdb-cluster"
-#  engine                  = "docdb"
-#  master_username         =
-#  master_password         = "mustbeeightchars"
-#  backup_retention_period = 5
-#  skip_final_snapshot     = true
-#}
+
+resource "aws_security_group" "main" {
+  name        = "${var.component}-${var.env}-sg"
+  description = "${var.component}-${var.env}-sg"
+  vpc_id      = var.vpc_id
+  # 27017 is the default port for mongodb
+  ingress {
+    from_port   = var.port
+    to_port     = var.port
+    protocol    = "tcp"
+    cidr_blocks = var.sg_subnet_cidr
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.component}-${var.env}-sg"
+  }
+}
+
+resource "aws_docdb_cluster" "main" {
+  cluster_identifier     = "${var.component}-${var.env}"
+  engine                 = var.engine #"docdb"
+  engine_version         = var.engine_version
+  master_username        = data.aws_ssm_parameter.username.value
+  master_password        = data.aws_ssm_parameter.password.value
+  skip_final_snapshot    = true
+  db_subnet_group_name   = aws_docdb_subnet_group.main.name
+  vpc_security_group_ids = aws_docdb_subnet_group.main.id
+  kms_key_id             = var.kms_key_arn
+  tags                   = merge({ Name = "${var.component}-${var.env}" }, var.tags)
+}
+
+resource "aws_docdb_cluster_instance" "main" {
+  count                  = var.instance_count
+  identifier             = "${var.component}-${var.env}-${count.index}"
+  cluster_identifier     = aws_docdb_cluster.main.id
+  instance_class         = var.instance_class
+}
+
 
 
 
