@@ -41,6 +41,7 @@ resource "aws_docdb_cluster" "main" {
   db_subnet_group_name   = aws_docdb_subnet_group.main.name
   vpc_security_group_ids = aws_docdb_subnet_group.main.id
   kms_key_id             = var.kms_key_arn
+  storage_encrypted      = true
   tags                   = merge({ Name = "${var.component}-${var.env}" }, var.tags)
 }
 
@@ -49,6 +50,7 @@ resource "aws_docdb_cluster_instance" "main" {
   identifier             = "${var.component}-${var.env}-${count.index}"
   cluster_identifier     = aws_docdb_cluster.main.id
   instance_class         = var.instance_class
+
 }
 
 
