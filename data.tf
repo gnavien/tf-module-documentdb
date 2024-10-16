@@ -1,5 +1,5 @@
 data "aws_ssm_parameter" "username" {
-  name = "roboshop.${var.env}.docdb.usrname"
+  name = "roboshop.${var.env}.docdb.username"
 }
 
 data "aws_ssm_parameter" "password" {
