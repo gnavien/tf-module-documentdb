@@ -8,8 +8,8 @@ resource "aws_docdb_subnet_group" "main" {
 
 
 resource "aws_security_group" "main" {
-  name        = "${var.component}-${var.env}-sg"
-  description = "${var.component}-${var.env}-sg"
+  name        = "${var.component}-${var.env}"
+  description = "${var.component}-${var.env}"
   vpc_id      = var.vpc_id
   # 27017 is the default port for mongodb
   ingress {
@@ -27,7 +27,7 @@ resource "aws_security_group" "main" {
   }
 
   tags = {
-    Name = "${var.component}-${var.env}-sg"
+    Name = "${var.component}-${var.env}"
   }
 }
 
